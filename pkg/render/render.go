@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"text/template"
+
+	"github.com/justinas/nosurf"
 )
 
 //go allows to create functions and pass those to templates
@@ -21,12 +23,12 @@ func NewTemplate(a *config.AppConfig) {
 	app = a
 }
 
-func AddDefaultData(td *models.TemplateData) *models.TemplateData {
-
+func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
+	td.CSRFToken = nosurf.Token(r)
 	return td
 }
 
-func RenderTemplate(w http.ResponseWriter, html string, td *models.TemplateData) {
+func RenderTemplate(w http.ResponseWriter, r *http.Request, html string, td *models.TemplateData) {
 
 	var tc map[string]*template.Template
 	//if use cache is true read info from template cache else cretae template
@@ -48,7 +50,7 @@ func RenderTemplate(w http.ResponseWriter, html string, td *models.TemplateData)
 	buf := new(bytes.Buffer)
 
 	//when data need to add to all pages do below
-	td = AddDefaultData(td)
+	td = AddDefaultData(td, r)
 
 	//put template available in memory in bytes
 	//store template in buf variable
