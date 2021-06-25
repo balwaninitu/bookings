@@ -4,7 +4,9 @@ import (
 	"bookings/pkg/config"
 	"bookings/pkg/models"
 	"bookings/pkg/render"
+	"encoding/json"
 	"fmt"
+	"log"
 
 	"net/http"
 )
@@ -86,4 +88,25 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, r, "make-reservation.page.html", &models.TemplateData{})
+}
+
+type jsonResponse struct {
+	OK      bool   `json:"ok"`
+	Message string `json:"message"`
+}
+
+func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+	resp := jsonResponse{
+		OK:      true,
+		Message: "Available",
+	}
+	//convert json and send back
+	out, err := json.MarshalIndent(resp, "", "     ")
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(string(out))
+	//header declaration
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 }
