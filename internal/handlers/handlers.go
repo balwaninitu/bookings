@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bookings/forms"
 	"bookings/internal/config"
 	"bookings/internal/models"
 	"bookings/internal/render"
@@ -87,6 +88,13 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "make-reservation.page.html", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+//handles the posting of a reservation form
+func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, r, "make-reservation.page.html", &models.TemplateData{})
 }
 
