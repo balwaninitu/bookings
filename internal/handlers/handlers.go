@@ -129,6 +129,12 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	/*session to get info from make reservation to
+	  reservation summary*/
+	m.App.Session.Put(r.Context(), "reservation", reservation)
+
+	//redirect to avoid submit form twice by accident
+	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
 }
 
 type jsonResponse struct {
@@ -150,4 +156,19 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 	//header declaration
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
+}
+
+func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	if !ok {
+		log.Println("Can not get item from session")
+		return
+	}
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+
+	render.RenderTemplate(w, r, "reservation-summary.page.html", &models.TemplateData{
+		Data: data,
+	})
+
 }
